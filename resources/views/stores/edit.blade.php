@@ -28,11 +28,11 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Owner</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Manager</label>
                     <input type="text"
                         class="w-full rounded-lg border-gray-300 bg-gray-50 text-gray-500 shadow-sm cursor-not-allowed"
-                        value="{{ $store->owner->name ?? 'No Owner' }} ({{ $store->owner->email ?? '-' }})" disabled>
-                    <p class="text-gray-500 text-xs mt-1">Owner details cannot be changed here.</p>
+                        value="{{ $store->owner->name ?? 'No Manager' }} ({{ $store->owner->email ?? '-' }})" disabled>
+                    <p class="text-gray-500 text-xs mt-1">Manager details cannot be changed here.</p>
                 </div>
 
                 <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -58,12 +58,46 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Berlaku Sampai (Subscription Valid
-                        Until)</label>
-                    <input type="date" name="subscription_until"
-                        value="{{ old('subscription_until', $store->subscription_until ? $store->subscription_until->format('Y-m-d') : '') }}"
-                        class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm transition-colors @error('subscription_until') border-red-500 @enderror">
-                    @error('subscription_until')
+                    <label class="block text-sm font-medium text-gray-700 mb-1">API URL</label>
+                    <input type="url" name="api_url" value="{{ old('api_url', $store->api_url) }}"
+                        class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm transition-colors @error('api_url') border-red-500 @enderror"
+                        placeholder="https://branch-store.example.com">
+                    @error('api_url')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">API Token</label>
+                    <div class="flex gap-2">
+                        <input type="text" name="api_token" value="{{ old('api_token', $store->api_token) }}"
+                            class="flex-1 rounded-lg border-gray-300 bg-gray-50 text-gray-500 shadow-sm cursor-not-allowed focus:border-blue-500 focus:ring-blue-500 transition-colors @error('api_token') border-red-500 @enderror"
+                            placeholder="Auth token for branch API" readonly>
+
+                        <button type="button" onclick="document.getElementById('generate-token-form').submit()"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition-colors flex items-center justify-center whitespace-nowrap">
+                            <i data-feather="refresh-cw" class="w-4 h-4 mr-2"></i> Generate Token
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">This token acts as the password for the Store API. Generate a new
+                        one if it's compromised. Keep it secret.</p>
+                    @error('api_token')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sync Status</label>
+                    <select name="sync_status"
+                        class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm transition-colors @error('sync_status') border-red-500 @enderror">
+                        <option value="pending"
+                            {{ old('sync_status', $store->sync_status) === 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="synced"
+                            {{ old('sync_status', $store->sync_status) === 'synced' ? 'selected' : '' }}>Synced</option>
+                        <option value="failed"
+                            {{ old('sync_status', $store->sync_status) === 'failed' ? 'selected' : '' }}>Failed</option>
+                    </select>
+                    @error('sync_status')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
@@ -90,5 +124,8 @@
                 </div>
             </form>
         </div>
-    </div>
-@endsection
+        <form id="generate-token-form" action="{{ route('admin.stores.generate_token', $store->id) }}" method="POST"
+            class="hidden">
+            @csrf
+        </form>
+    @endsection

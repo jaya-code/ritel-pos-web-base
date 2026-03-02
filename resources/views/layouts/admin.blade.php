@@ -154,23 +154,11 @@
                     <span class="font-medium">Users</span>
                 </a>
                 @if (auth()->user()->role === 'admin')
-                    <a href="{{ route('subscription-plans.index') }}"
-                        class="flex items-center px-4 py-2.5 text-gray-400 rounded-xl hover:bg-gray-800 hover:text-white transition-all duration-200 group {{ request()->routeIs('subscription-plans*') ? 'bg-gray-800 text-white' : '' }}">
-                        <i data-feather="award"
-                            class="w-5 h-5 mr-3 {{ request()->routeIs('subscription-plans*') ? 'text-purple-400' : 'group-hover:text-purple-400 transition-colors' }}"></i>
-                        <span class="font-medium">Paket Langganan</span>
-                    </a>
                     <a href="{{ route('stores.index') }}"
                         class="flex items-center px-4 py-2.5 text-gray-400 rounded-xl hover:bg-gray-800 hover:text-white transition-all duration-200 group {{ request()->routeIs('stores*') ? 'bg-gray-800 text-white' : '' }}">
                         <i data-feather="map-pin"
                             class="w-5 h-5 mr-3 {{ request()->routeIs('stores*') ? 'text-purple-400' : 'group-hover:text-purple-400 transition-colors' }}"></i>
                         <span class="font-medium">Stores</span>
-                    </a>
-                    <a href="{{ route('admin.withdrawals.index') }}"
-                        class="flex items-center px-4 py-2.5 text-gray-400 rounded-xl hover:bg-gray-800 hover:text-white transition-all duration-200 group {{ request()->routeIs('admin.withdrawals*') ? 'bg-gray-800 text-white' : '' }}">
-                        <i data-feather="dollar-sign"
-                            class="w-5 h-5 mr-3 {{ request()->routeIs('admin.withdrawals*') ? 'text-purple-400' : 'group-hover:text-purple-400 transition-colors' }}"></i>
-                        <span class="font-medium">Penarikan QRIS</span>
                     </a>
                 @endif
                 @if (auth()->user()->role === 'owner')
@@ -186,23 +174,12 @@
                             class="w-5 h-5 mr-3 {{ request()->routeIs('payment-settings*') ? 'text-purple-400' : 'group-hover:text-purple-400 transition-colors' }}"></i>
                         <span class="font-medium">Payment Settings</span>
                     </a>
-                    <a href="{{ route('subscription.index') }}"
-                        class="flex items-center px-4 py-2.5 text-gray-400 rounded-xl hover:bg-gray-800 hover:text-white transition-all duration-200 group {{ request()->routeIs('subscription*') ? 'bg-gray-800 text-white' : '' }}">
-                        <i data-feather="shield"
-                            class="w-5 h-5 mr-3 {{ request()->routeIs('subscription*') ? 'text-purple-400' : 'group-hover:text-purple-400 transition-colors' }}"></i>
-                        <span class="font-medium">Berlangganan</span>
-                    </a>
+                    <!-- Subscription removed -->
                     <a href="{{ route('promos.index') }}"
                         class="flex items-center px-4 py-2.5 text-gray-400 rounded-xl hover:bg-gray-800 hover:text-white transition-all duration-200 group {{ request()->routeIs('promos*') ? 'bg-gray-800 text-white' : '' }}">
                         <i data-feather="tag"
                             class="w-5 h-5 mr-3 {{ request()->routeIs('promos*') ? 'text-purple-400' : 'group-hover:text-purple-400 transition-colors' }}"></i>
                         <span class="font-medium">Promotions</span>
-                    </a>
-                    <a href="{{ route('withdrawals.index') }}"
-                        class="flex items-center px-4 py-2.5 text-gray-400 rounded-xl hover:bg-gray-800 hover:text-white transition-all duration-200 group {{ request()->routeIs('withdrawals*') ? 'bg-gray-800 text-white' : '' }}">
-                        <i data-feather="dollar-sign"
-                            class="w-5 h-5 mr-3 {{ request()->routeIs('withdrawals*') ? 'text-purple-400' : 'group-hover:text-purple-400 transition-colors' }}"></i>
-                        <span class="font-medium">Tarik Saldo</span>
                     </a>
                 @endif
             </nav>

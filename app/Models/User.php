@@ -3,16 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -56,25 +57,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(Store::class);
     }
 
-    public function subscriptionTransactions()
-    {
-        return $this->hasMany(SubscriptionTransaction::class);
-    }
-
-    public function hasActiveSubscription()
-    {
-        // Admin and Kasir usually bypass this check (Kasir checks Owner's subscription later)
-        if ($this->role === 'admin') {
-            return true;
-        }
-
-        if ($this->store) {
-            return $this->store->hasActiveSubscription();
-        }
-
-        return false;
-    }
-    
     // Manual Scope for Store Isolation
     public function scopeForStore(Builder $query)
     {

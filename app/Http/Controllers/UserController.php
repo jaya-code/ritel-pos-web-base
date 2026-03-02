@@ -47,8 +47,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|in:admin,kasir,owner',
-            'store_name' => 'required_if:role,owner|nullable|string|max:255',
-            'subscription_until' => 'nullable|date',
+            'store_id' => 'nullable|exists:stores,id',
         ]);
 
         $userData = [
@@ -56,30 +55,17 @@ class UserController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
-            'store_id' => auth()->user()->store_id, // Default to creator's store (for Owners creating Cashiers)
         ];
-
-        // Ensure only admins can set subscriptions (Will be saved to Store later)
-        $subscriptionUntil = null;
-        if (auth()->user()->role === 'admin' && $validated['role'] === 'owner' && !empty($validated['subscription_until'])) {
-            $subscriptionUntil = $validated['subscription_until'];
+        
+        // If an admin creates a user, they can assign them to a store
+        if (auth()->user()->role === 'admin') {
+            $userData['store_id'] = $validated['store_id'] ?? null;
+        } else {
+            // Otherwise, inherit the creator's store (e.g. Owner creating Cashier)
+            $userData['store_id'] = auth()->user()->store_id;
         }
 
-        // Create User
-        $user = User::create($userData);
-
-        // If Role is Owner, Create Store and Link
-        if ($validated['role'] === 'owner' && !empty($validated['store_name'])) {
-            $store = \App\Models\Store::create([
-                'name' => $validated['store_name'],
-                'owner_id' => $user->id,
-                'subscription_until' => $subscriptionUntil,
-            ]);
-
-            // Update user with store_id
-            $user->store_id = $store->id;
-            $user->save();
-        }
+        User::create($userData);
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
@@ -93,7 +79,10 @@ class UserController extends Controller
              // Owners can only edit cashiers, and only their own cashiers (scope handles this)
              return view('users.edit', ['user' => $user, 'roles' => ['kasir' => 'Cashier']]);
         }
-        return view('users.edit', ['user' => $user, 'roles' => ['admin' => 'Admin', 'owner' => 'Owner', 'kasir' => 'Cashier']]);
+        
+        // Load stores for the admin edit form
+        $stores = \App\Models\Store::all();
+        return view('users.edit', ['user' => $user, 'roles' => ['admin' => 'Admin', 'owner' => 'Owner', 'kasir' => 'Cashier'], 'stores' => $stores]);
     }
 
     /**
@@ -106,7 +95,7 @@ class UserController extends Controller
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|string|min:6|confirmed',
             'role' => 'required|in:admin,kasir,owner',
-            'subscription_until' => 'nullable|date',
+            'store_id' => 'nullable|exists:stores,id',
         ]);
 
         $userData = [
@@ -118,14 +107,10 @@ class UserController extends Controller
         if (!empty($validated['password'])) {
             $userData['password'] = Hash::make($validated['password']);
         }
-
-        // Update subscription on the Store if the user is an owner
-        if ($user->role === 'owner' && $user->store) {
-            if (auth()->user()->role === 'admin' && $validated['role'] === 'owner' && !empty($validated['subscription_until'])) {
-                $user->store->update(['subscription_until' => $validated['subscription_until']]);
-            } elseif (auth()->user()->role === 'admin' && $validated['role'] === 'owner' && empty($validated['subscription_until'])) {
-                $user->store->update(['subscription_until' => null]);
-            }
+        
+        // Admins can update the store_id 
+        if (auth()->user()->role === 'admin') {
+            $userData['store_id'] = $validated['store_id'] ?? null;
         }
 
         $user->update($userData);

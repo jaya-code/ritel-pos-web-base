@@ -29,44 +29,6 @@ class MidtransCallbackController extends Controller
         $orderId = $notification->order_id;
         $fraudStatus = $notification->fraud_status;
 
-        if (str_starts_with($orderId, 'SUB-')) {
-            $transactionId = explode('-', $orderId)[1];
-            $subTransaction = \App\Models\SubscriptionTransaction::find($transactionId);
-            if (! $subTransaction) {
-                Log::error('Midtrans Subscription Transaction Not Found: '.$orderId);
-
-                return response(['message' => 'Subscription order not found'], 404);
-            }
-
-            Log::info("Midtrans Processing Subscription: OrderID: $orderId, Status: $transactionStatus");
-
-            if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
-                if ($subTransaction->status !== 'success') {
-                    $subTransaction->update(['status' => 'success', 'paid_at' => now()]);
-
-                    $user = $subTransaction->user;
-                    $store = $user->store;
-                    $days = $subTransaction->plan->duration_days;
-                    
-                    if ($store) {
-                        $currentUntil = $store->subscription_until ? \Carbon\Carbon::parse($store->subscription_until) : null;
-
-                        if ($currentUntil && $currentUntil->isFuture()) {
-                            $store->subscription_until = $currentUntil->addDays($days);
-                        } else {
-                            $store->subscription_until = now()->addDays($days);
-                        }
-                        $store->save();
-                    }
-                    Log::info("Subscription extended for Store User ID: {$user->id}");
-                }
-            } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
-                $subTransaction->update(['status' => 'failed']);
-            }
-
-            return response(['message' => 'Success']);
-        }
-
         $order = Penjualan::where('penjualan_id', $orderId)->first();
 
         if (! $order) {

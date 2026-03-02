@@ -25,31 +25,7 @@
             </div>
         </div>
 
-        @if (auth()->user()->role === 'owner' && isset($subscriptionDaysLeft) && $subscriptionDaysLeft <= 7)
-            <div
-                class="p-4 rounded-xl shadow-sm border {{ $subscriptionDaysLeft <= 0 ? 'bg-red-50 border-red-200 text-red-800' : 'bg-yellow-50 border-yellow-200 text-yellow-800' }} flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <i data-feather="alert-triangle" class="w-6 h-6"></i>
-                    <div>
-                        <h4 class="font-bold">
-                            {{ $subscriptionDaysLeft <= 0 ? 'Langganan Berakhir' : 'Langganan Segera Berakhir' }}</h4>
-                        <p class="text-sm">
-                            @if ($subscriptionDaysLeft <= 0)
-                                Masa aktif langganan Anda telah habis. Kasir tidak dapat melakukan transaksi. Segera
-                                perpanjang langganan Anda.
-                            @else
-                                Sisa langganan Anda tinggal {{ $subscriptionDaysLeft }} hari. Segera perpanjang agar
-                                transaksi tidak terhenti.
-                            @endif
-                        </p>
-                    </div>
-                </div>
-                <a href="{{ route('subscription.index') }}"
-                    class="px-4 py-2 bg-white rounded-lg shadow-sm border font-medium hover:bg-gray-50 transition text-sm">
-                    Perpanjang Sekarang
-                </a>
-            </div>
-        @endif
+
 
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -118,42 +94,26 @@
                     <div
                         class="absolute right-0 top-0 w-24 h-24 bg-indigo-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110">
                     </div>
-                    <div class="relative">
-                        <div
-                            class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 mb-4">
-                            <i data-feather="wallet"></i>
-                        </div>
-                        <p class="text-gray-500 text-sm font-medium">Saldo QRIS Dinamis</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">Rp
-                            {{ number_format($qrisBalance ?? 0, 0, ',', '.') }}</h3>
-                        <div
-                            class="flex items-center gap-1 text-xs font-medium text-indigo-600 mt-3 bg-indigo-50 px-2 py-1 rounded w-fit hover:bg-indigo-100 transition-colors">
-                            <a href="{{ route('withdrawals.index') }}"
-                                class="hover:underline text-indigo-700 flex items-center gap-1">Tarik Saldo <i
-                                    data-feather="arrow-right" class="w-3 h-3"></i></a>
-                        </div>
-                    </div>
-                </div>
-            @else
-                <!-- Products (Placeholder) -->
-                <div
-                    class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden group">
+                @else
+                    <!-- Products (Placeholder) -->
                     <div
-                        class="absolute right-0 top-0 w-24 h-24 bg-orange-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110">
-                    </div>
-                    <div class="relative">
+                        class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden group">
                         <div
-                            class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600 mb-4">
-                            <i data-feather="package"></i>
+                            class="absolute right-0 top-0 w-24 h-24 bg-orange-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110">
                         </div>
-                        <p class="text-gray-500 text-sm font-medium">Inventory System</p>
-                        <h3 class="text-2xl font-bold text-gray-900 mt-1">Active</h3>
-                        <div
-                            class="flex items-center gap-1 text-xs font-medium text-orange-600 mt-3 bg-orange-50 px-2 py-1 rounded w-fit">
-                            <a href="{{ route('products.index') }}" class="hover:underline">Manage Products &rarr;</a>
+                        <div class="relative">
+                            <div
+                                class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600 mb-4">
+                                <i data-feather="package"></i>
+                            </div>
+                            <p class="text-gray-500 text-sm font-medium">Inventory System</p>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-1">Active</h3>
+                            <div
+                                class="flex items-center gap-1 text-xs font-medium text-orange-600 mt-3 bg-orange-50 px-2 py-1 rounded w-fit">
+                                <a href="{{ route('products.index') }}" class="hover:underline">Manage Products &rarr;</a>
+                            </div>
                         </div>
                     </div>
-                </div>
             @endif
         </div>
 

@@ -56,16 +56,10 @@ class DashboardController extends Controller
             $topProductsData[] = $tp->total_qty;
         }
 
-        $subscriptionDaysLeft = null;
         $qrisBalance = 0;
         if (auth()->user()->role === 'owner') {
             $store = auth()->user()->store;
             if ($store) {
-                if ($store->subscription_until) {
-                    $subscriptionDaysLeft = (int) \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($store->subscription_until), false);
-                } else {
-                    $subscriptionDaysLeft = -1;
-                }
                 $qrisBalance = $store->qris_balance;
             }
         }
@@ -82,7 +76,6 @@ class DashboardController extends Controller
             'chartData',
             'topProductsLabels',
             'topProductsData',
-            'subscriptionDaysLeft',
             'qrisBalance'
         ));
     }

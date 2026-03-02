@@ -43,7 +43,7 @@
                         <select name="role" x-model="role"
                             class="select2 w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm transition-colors"
                             required>
-                            @foreach ($roles ?? ['kasir' => 'Cashier', 'admin' => 'Admin', 'owner' => 'Owner'] as $value => $label)
+                            @foreach ($roles ?? ['kasir' => 'Cashier', 'admin' => 'Admin', 'owner' => 'Manager'] as $value => $label)
                                 <option value="{{ $value }}">
                                     {{ $label }}</option>
                             @endforeach
@@ -54,13 +54,19 @@
                     </div>
 
                     @if (auth()->user()->role === 'admin')
-                        <div class="mb-4" x-show="role === 'owner'" x-transition x-cloak>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Berlaku Sampai (Subscription Valid
-                                Until)</label>
-                            <input type="date" name="subscription_until"
-                                value="{{ old('subscription_until', $user->store && $user->store->subscription_until ? $user->store->subscription_until->format('Y-m-d') : '') }}"
+                        <div class="mb-4" x-show="role !== 'admin'" x-transition x-cloak>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Assign to Store (Branch)</label>
+                            <select name="store_id"
                                 class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm transition-colors">
-                            @error('subscription_until')
+                                <option value="">Select a store...</option>
+                                @foreach (\App\Models\Store::all() as $store)
+                                    <option value="{{ $store->id }}"
+                                        {{ old('store_id', $user->store_id) == $store->id ? 'selected' : '' }}>
+                                        {{ $store->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('store_id')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>

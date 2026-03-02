@@ -16,7 +16,7 @@
                 <thead class="bg-gray-50 text-gray-900 border-b border-gray-100">
                     <tr>
                         <th class="px-6 py-4 font-semibold">Store Name</th>
-                        <th class="px-6 py-4 font-semibold">Owner</th>
+                        <th class="px-6 py-4 font-semibold">Manager</th>
                         <th class="px-6 py-4 font-semibold">Address</th>
                         <th class="px-6 py-4 font-semibold">Phone</th>
                         <th class="px-6 py-4 font-semibold">Created At</th>
@@ -33,7 +33,7 @@
                                     <br>
                                     <span class="text-xs text-gray-500">{{ $store->owner->email }}</span>
                                 @else
-                                    <span class="text-red-500 italic">No Owner</span>
+                                    <span class="text-red-500 italic">No Manager</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4">{{ $store->address ?? '-' }}</td>

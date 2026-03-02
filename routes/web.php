@@ -45,22 +45,12 @@ Route::middleware(['auth', 'role:admin,owner', 'verified'])->group(function () {
 // Owner Only Routes
 // Owner Only Routes
 Route::middleware(['auth', 'role:owner', 'verified'])->group(function () {
-    Route::resource('stores', \App\Http\Controllers\StoreController::class)->only(['create', 'store']);
     Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
     Route::resource('promos', \App\Http\Controllers\PromoController::class);
 
     // Configuration / Settings
     Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings/update', [\App\Http\Controllers\SettingsController::class, 'update'])->name('settings.update');
-
-    // Subscription Management
-    Route::get('/subscription', [\App\Http\Controllers\SubscriptionController::class, 'index'])->name('subscription.index');
-    Route::post('/subscription/checkout', [\App\Http\Controllers\SubscriptionController::class, 'createTransaction'])->name('subscription.checkout');
-    Route::get('/payments', function () {
-        return 'Payments Page';
-    })->name('payments.index');
-    Route::get('/withdrawals', [\App\Http\Controllers\WithdrawalController::class, 'ownerIndex'])->name('withdrawals.index');
-    Route::post('/withdrawals', [\App\Http\Controllers\WithdrawalController::class, 'store'])->name('withdrawals.store');
 
     // Payment Settings
     Route::get('/payment-settings', [\App\Http\Controllers\PaymentSettingController::class, 'index'])->name('payment-settings.index');
@@ -78,22 +68,15 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         return back()->with('success', 'Store filter updated');
     })->name('admin.switch_store');
 
-    Route::get('/stores', [\App\Http\Controllers\StoreController::class, 'index'])->name('stores.index');
-    Route::get('/stores/{store}/edit', [\App\Http\Controllers\StoreController::class, 'edit'])->name('stores.edit');
-    Route::put('/stores/{store}', [\App\Http\Controllers\StoreController::class, 'update'])->name('stores.update');
-
-    Route::resource('subscription-plans', App\Http\Controllers\SubscriptionPlanController::class);
-
-    Route::get('/admin/withdrawals', [\App\Http\Controllers\WithdrawalController::class, 'adminIndex'])->name('admin.withdrawals.index');
-    Route::post('/admin/withdrawals/{withdrawal}/approve', [\App\Http\Controllers\WithdrawalController::class, 'approve'])->name('admin.withdrawals.approve');
-    Route::post('/admin/withdrawals/{withdrawal}/reject', [\App\Http\Controllers\WithdrawalController::class, 'reject'])->name('admin.withdrawals.reject');
+    Route::resource('stores', \App\Http\Controllers\StoreController::class)->except(['show', 'destroy']);
+    Route::post('/admin/stores/{store}/generate-token', [\App\Http\Controllers\StoreController::class, 'generateToken'])->name('admin.stores.generate_token');
 });
 
 // Cashier Routes (POS)
 // Note: Admin should also be able to access POS if needed, but for now we separate strictly or allow based on role array.
 // Let's allow admin, owner, and kasir to access POS for flexibility.
 // Based on request "membedakan", but usually Admin/Owner can do everything. Use role:admin,owner,kasir for POS.
-Route::middleware(['auth', 'role:admin,owner,kasir', \App\Http\Middleware\CheckSubscription::class])->group(function () {
+Route::middleware(['auth', 'role:admin,owner,kasir'])->group(function () {
     Route::get('/pos', [TransactionController::class, 'index'])->name('pos.index');
     Route::get('/pos/history', [TransactionController::class, 'history'])->name('pos.history');
     Route::get('/pos/stock', [TransactionController::class, 'stock'])->name('pos.stock');

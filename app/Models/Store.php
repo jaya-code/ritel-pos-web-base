@@ -17,13 +17,16 @@ class Store extends Model
         'owner_id',
         'payment_config',
         'qris_fee',
-        'subscription_until',
+        'api_url',
+        'api_token',
+        'sync_status',
+        'last_sync_at',
     ];
 
     protected $casts = [
         'payment_config' => 'array',
         'qris_fee' => 'decimal:2',
-        'subscription_until' => 'datetime',
+        'last_sync_at' => 'datetime',
     ];
 
     public function owner()
@@ -41,16 +44,6 @@ class Store extends Model
         return $this->hasMany(Product::class);
     }
 
-    public function hasActiveSubscription()
-    {
-        return $this->subscription_until && $this->subscription_until->isFuture();
-    }
-
-    public function withdrawals()
-    {
-        return $this->hasMany(Withdrawal::class);
-    }
-
     public function getQrisBalanceAttribute()
     {
         $qrisSalesTotal = \App\Models\Penjualan::where('store_id', $this->id)
@@ -61,10 +54,6 @@ class Store extends Model
         $qrisFeePercentage = $this->qris_fee ?? 0;
         $netQrisSales = $qrisSalesTotal - ($qrisSalesTotal * ($qrisFeePercentage / 100));
 
-        $withdrawalsTotal = $this->withdrawals()
-            ->whereIn('status', ['pending', 'approved'])
-            ->sum('amount');
-
-        return max(0, $netQrisSales - $withdrawalsTotal);
+        return max(0, $netQrisSales);
     }
 }

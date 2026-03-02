@@ -6,6 +6,7 @@ use App\Models\Store;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class StoreController extends Controller
 {
@@ -39,21 +40,26 @@ class StoreController extends Controller
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
+            'qris_fee' => 'nullable|numeric|min:0|max:100',
+            'api_url' => 'nullable|url|max:255',
+            'api_token' => 'nullable|string|max:255',
         ]);
 
         $store = Store::create([
             'name' => $request->name,
             'address' => $request->address,
             'phone' => $request->phone,
-            'owner_id' => Auth::id(),
+            'qris_fee' => $request->qris_fee ?? 0,
+            'api_url' => $request->api_url,
+            'api_token' => $request->api_token,
+            'owner_id' => Auth::id(), // Temporary assignment before user management attaches an actual manager
         ]);
 
-        // Assign store to current user (Owner)
-        $user = User::find(Auth::id());
-        $user->store_id = $store->id;
-        $user->save();
+        // Note: we no longer automatically tie the creator as the owner. 
+        // Admin manages Store, Admin manages Users.
+        // We link Owner to Store via UserController now.
 
-        return redirect()->route('dashboard.index')->with('success', 'Store registered successfully!');
+        return redirect()->route('stores.index')->with('success', 'Branch registered successfully!');
     }
 
     /**
@@ -81,7 +87,8 @@ class StoreController extends Controller
             'address' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'qris_fee' => 'nullable|numeric|min:0|max:100',
-            'subscription_until' => 'nullable|date',
+            'api_url' => 'nullable|url|max:255',
+            'api_token' => 'nullable|string|max:255',
         ]);
 
         $storeData = [
@@ -89,14 +96,28 @@ class StoreController extends Controller
             'address' => $request->address,
             'phone' => $request->phone,
             'qris_fee' => $request->qris_fee ?? 0,
+            'api_url' => $request->api_url,
+            'api_token' => $request->api_token,
         ];
-
-        if ($request->has('subscription_until')) {
-            $storeData['subscription_until'] = $request->subscription_until;
-        }
 
         $store->update($storeData);
 
-        return redirect()->route('stores.index')->with('success', 'Store updated successfully!');
+        return redirect()->route('stores.index')->with('success', 'Branch updated successfully!');
+    }
+
+    /**
+     * Generate a new API token for the specified store.
+     */
+    public function generateToken(Store $store)
+    {
+        if (Auth::user()->role !== 'admin') {
+             abort(403, 'Unauthorized action.');
+        }
+
+        $store->update([
+            'api_token' => Str::random(60),
+        ]);
+
+        return back()->with('success', 'API Token generated successfully!');
     }
 }
